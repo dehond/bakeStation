@@ -73,7 +73,7 @@ def updatePlot(fig, ax1, ax2, xdat, ydat1, ydat2):
 	ax1.clear()
 	ax1.semilogy(xdat, ydat1, 'k')
 	ax1.set_ylabel("Pressure (torr)", fontsize=20)
-	ax1.set_xlabel("Time (s)", fontsize=20)
+	ax1.set_xlabel("Time and date", fontsize=20)
 	if not len(ydat1) == 0:
 		ax1.set_ylim((0.5*min(ydat1),2*max(ydat1)))
 
