@@ -1,0 +1,4 @@
+## bakeStation
+A Python utility for monitoring a vacuum bakeout using a Varian ion gauge controller connected over serial, and some temperature sensor hooked up to the computer via a microcontroller. The GUI shows a trace of the logged pressure and temperature data. These are continuously logged to a `.csv` in the `logdata` folder, and when the user clicks the quit button, a figure is saved, too. The Matlab script `analyze_logdata.m` plots all data in the more versatile `.fig` format.
+
+The user should configure the serial ports over which the ion gauge and temperature sensor are connected. In this case, currently, the temperature sensor is configured to be a thermistor connected to a CircuitPython board (running `circuitPythonSerial.py`).

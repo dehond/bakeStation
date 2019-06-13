@@ -129,6 +129,12 @@ if __name__ == "__main__":
 	# Open tkinter figure
 	root = tkinter.Tk()
 	
+	# Create directories for data and figures if they don't exist yet
+	if not os.path.exists('logdata'):
+		os.makedirs('logdata')
+	if not os.path.exists('logfigs'):
+		os.makedirs('logfigs')
+	
 	# Should we continue using the old .csv file, or start afresh?
 	usePreviousFile = messagebox.askyesno("Continue?", "Continue using previous savefile?")
 	if usePreviousFile:
