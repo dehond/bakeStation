@@ -18,16 +18,23 @@ def getPressure(physAddress):
 	# Connect to the ion gauge hooked up to physAddress and query for pressure
 	try:
 		ser = serial.Serial(physAddress, 9600, timeout =  10)
-		#ser.open()
 		ser.write(b'#0002I1\r')
 		ser.flush()
 		message = ser.read(11)
 		ser.close()
 		pressure = float(message[1:-1].decode("utf-8"))
-		return pressure
+		
+		# Safety feature: if pressure is higher than threshold, switch off ion gauge
+		if pressure > pressureThreshold:
+			ser = serial.Serial(physAddress, 9600, timeout =  10)
+			ser.write(b'#0030I1\r')
+			ser.flush()
+			ser.close()
+		
 	except:
-		#messagebox.showerror("Error", "Couldn't read out over serial connection")
-		return 'NaN'
+		pressure = 0.0
+		print('There was a problem in the serial communication to the Multi Gauge.')
+	return pressure
 		
 def thermistorFun(resistance, R25):
     # Assuming a specific 100 kOhm thermistor, this returns the temperature
@@ -40,14 +47,18 @@ def getTemperature(physAddress):
     # Connect to the Itsy Bitsy reading in the voltage across the thermistor
     R25 = 100.0E3 # Thermistor value
     Rpullup = 100.0E3
-    ser = serial.Serial(physAddress, timeout = 5)
-    ser.write(b'boguscommand\r\n')
-    ser.readline()	# Do a dummy because that's how the Itsy Bitsy be
-    message = ser.readline()[:-2]
-    ser.close()
-    value = float(message)/2**16
-    resistance = Rpullup * value / (1 - value)
-    temperature = thermistorFun(resistance, R25)
+    try:
+        ser = serial.Serial(physAddress, timeout = 5)
+        ser.write(b'boguscommand\r\n') # It doesn't matter precisely which command we send
+        ser.readline()	# Do a dummy because that's how the Itsy Bitsy be
+        message = ser.readline()[:-2]
+        ser.close()
+        value = float(message)/2**16
+        resistance = Rpullup * value / (1 - value)
+        temperature = thermistorFun(resistance, R25)
+    except:
+        print('There was a problem in the serial communication to the thermistor. Try unplugging the device.')
+        temperature = 0.0
     return temperature
 
 def readCSVFile(filename):
@@ -125,6 +136,7 @@ if __name__ == "__main__":
 	physAddressIonGauge = 'COM3'
 	physAddressThermo = 'COM13'
 	samplePeriod = 10	# In seconds
+	pressureThreshold = 1.0E-6	# Threshold above which we should switch off the ion gauge
 	
 	# Open tkinter figure
 	root = tkinter.Tk()
